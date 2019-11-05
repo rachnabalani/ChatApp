@@ -1,12 +1,15 @@
 package com.rachnbalani.chatapp.Controller
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.Toast
 import com.rachnbalani.chatapp.R
 import com.rachnbalani.chatapp.Services.AuthService
-import com.rachnbalani.chatapp.Services.UserDataService
+import com.rachnbalani.chatapp.Utilities.BROADCAST_USER_DATA_CHANGE
 import kotlinx.android.synthetic.main.activity_create_user.*
 import kotlin.random.Random
 
@@ -50,31 +53,43 @@ class CreateUserActivity : AppCompatActivity() {
 
     }
 
-    fun createUsrBtnClicked(view: View){
+    fun createUsrBtnClicked(view: View) {
+        enableSpinner(true)
         val userName = createUserNameTxt.text.toString()
         val userPassword = createPswrdTxt.text.toString()
         val userEmail = createEmailTxt.text.toString()
-        AuthService.registerUser(this, userEmail, userPassword){ registerSuccess ->
-            if(registerSuccess){
+        if (userName.isNotEmpty() && userPassword.isNotEmpty() && userEmail.isNotEmpty()){
+        AuthService.registerUser(this, userEmail, userPassword) { registerSuccess ->
+            if (registerSuccess) {
                 AuthService.loginUser(this, userEmail, userPassword) { loginSuccess ->
-                    if(loginSuccess){
+                    if (loginSuccess) {
                         AuthService.createUser(this, userName, userEmail, userAvatar, avatarColor) { createSuccess ->
-                            if(createSuccess){
-                                println("User registered, logged in and created successfully. ")
-                                println(UserDataService.avatarName)
-                                println(UserDataService.avatarColor)
-                                println(UserDataService.name)
+                            if (createSuccess) {
+                                val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                                LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
+                                enableSpinner(false)
                                 finish()
-                            }
-                            else{
-                                println("something failed!!!")
+                            } else {
                             }
                         }
+                    } else {
+                        errorToast()
                     }
                 }
 
+            } else {
+                errorToast()
             }
         }
+    } else{
+            Toast.makeText(this, "username/email/password found empty, please check", Toast.LENGTH_LONG).show()
+            enableSpinner(false)
+        }
+    }
+
+    fun errorToast(){
+        Toast.makeText(this, "something went wrong, please try again!", Toast.LENGTH_LONG).show()
+        enableSpinner(false)
     }
 
     fun enableSpinner(enable: Boolean){
@@ -83,6 +98,11 @@ class CreateUserActivity : AppCompatActivity() {
             createUsrBtn.isEnabled = false
             CreateAvatarImgView.isEnabled = false
             BackgrndColorBtn.isEnabled = false
+        }else{
+            createSpinner.visibility = View.INVISIBLE
+            createUsrBtn.isEnabled = true
+            CreateAvatarImgView.isEnabled = true
+            BackgrndColorBtn.isEnabled = true
         }
     }
 
