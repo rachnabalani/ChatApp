@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
@@ -58,8 +59,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginBtnNavClicked(view: View){
-        val loginIntent = Intent(this, LoginActivity::class.java)
-        startActivity(loginIntent)
+        if(AuthService.isLoggedIn){
+            //already logged in and button pressed, so logout
+            UserDataService.logOut()
+            userNameNavHeader.text = ""
+            userEmailNavHeader.text = ""
+            userImageNavHeader.setImageResource(R.drawable.profiledefault)
+            userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
+            loginBtnNavHeader.text = "LOGIN"
+
+
+        }else {
+            val loginIntent = Intent(this, LoginActivity::class.java)
+            startActivity(loginIntent)
+        }
     }
 
     fun addChannelBtnClicked(view: View){

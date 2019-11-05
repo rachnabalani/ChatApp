@@ -31,4 +31,15 @@ object UserDataService {
         return Color.rgb(r, g, b)
     }
 
+    fun logOut() {
+        var id=""
+        var avatarColor = ""
+        var avatarName = ""
+        var email = ""
+        var name = ""
+        AuthService.authToken = ""
+        AuthService.userEmail = ""
+        AuthService.isLoggedIn = false
+    }
+
 }
