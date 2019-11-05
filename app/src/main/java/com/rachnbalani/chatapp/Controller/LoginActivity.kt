@@ -1,9 +1,10 @@
-package com.rachnbalani.chatapp
+package com.rachnbalani.chatapp.Controller
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.rachnbalani.chatapp.R
 
 class LoginActivity : AppCompatActivity() {
 
