@@ -67,9 +67,7 @@ class MainActivity : AppCompatActivity() {
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "LOGIN"
-
-
-        }else {
+        }else { //not logged in, start activity to log in
             val loginIntent = Intent(this, LoginActivity::class.java)
             startActivity(loginIntent)
         }

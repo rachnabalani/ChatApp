@@ -1,14 +1,14 @@
 package com.rachnbalani.chatapp.Services
 
 import android.content.Context
+import android.content.Intent
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.rachnbalani.chatapp.Utilities.URL_CREATE_USER
-import com.rachnbalani.chatapp.Utilities.URL_LOGIN
-import com.rachnbalani.chatapp.Utilities.URL_REGISTER
+import com.rachnbalani.chatapp.Utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -66,7 +66,7 @@ object AuthService {
                complete(true)
            } catch (e: JSONException){
                //this is to check for response errors
-                Log.d("error", "Exception occured, ${e.localizedMessage}")
+                Log.d("error", "Exception occurred, ${e.localizedMessage}")
                complete(false)
            }
             //below is the error handling with request going wrong
@@ -131,5 +131,42 @@ object AuthService {
             }
         }
         Volley.newRequestQueue(context).add(createRequest)
+    }
+
+    fun findUserByEmail(context: Context, complete: (Boolean) -> Unit){
+        val findUserRequest = object: JsonObjectRequest(Method.GET, "$URL_GET_USER$userEmail", null, Response.Listener { response ->
+
+            try {
+                UserDataService.name = response.getString("name")
+                UserDataService.email = response.getString("email")
+                UserDataService.avatarName = response.getString("avatarName")
+                UserDataService.avatarColor = response.getString("avatarColor")
+                UserDataService.id = response.getString("_id")
+
+                val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
+                complete(true)
+            }catch (e: JSONException){
+                Log.d("error", "Exception occured, ${e.localizedMessage}")
+                complete(false)
+            }
+
+        }, Response.ErrorListener { error ->
+            Log.d("ERROR", "Could not find user, please try again : $error")
+            complete(false)
+        }){
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer $authToken")
+                return headers
+            }
+        }
+
+        Volley.newRequestQueue(context).add(findUserRequest)
     }
 }
